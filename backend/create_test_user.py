@@ -18,17 +18,17 @@ def create_test_users():
     
     db = SessionLocal()
     try:
-        # テストユーザーデータ
+        # テストユーザーデータ（新パスワード要件：8文字以上、英数字複合）
         test_users = [
             {
                 "username": "testuser",
                 "email": "test@example.com", 
-                "password": "test123"
+                "password": "test1234"  # 8文字、英数字複合
             },
             {
                 "username": "admin",
                 "email": "admin@example.com",
-                "password": "admin123"
+                "password": "admin1234"  # 8文字、英数字複合
             }
         ]
         

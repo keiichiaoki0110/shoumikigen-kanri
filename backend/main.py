@@ -68,10 +68,15 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
 # 認証エンドポイント
 @app.post("/auth/signup", response_model=dict)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
-    # 既存ユーザーチェック
-    db_user = db.query(User).filter(User.email == user.email).first()
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    # ユーザー名の重複チェック
+    db_user_by_username = db.query(User).filter(User.username == user.username).first()
+    if db_user_by_username:
+        raise HTTPException(status_code=400, detail="このユーザー名は既に使用されています")
+    
+    # メールアドレスの重複チェック
+    db_user_by_email = db.query(User).filter(User.email == user.email).first()
+    if db_user_by_email:
+        raise HTTPException(status_code=400, detail="このメールアドレスは既に登録されています")
     
     # ユーザー作成
     hashed_password = get_password_hash(user.password)
