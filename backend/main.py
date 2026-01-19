@@ -1,14 +1,10 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
-import os
-from pathlib import Path
 
 from database import SessionLocal, engine, Base
 from models import User, Category, Item, PurchaseList, Notification
@@ -19,21 +15,20 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="賞味期限管理アプリ API")
 
-# 静的ファイルのパス設定
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR.parent / "frontend" / "build"
-
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://keiichiaoki0110.pythonanywhere.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # セキュリティ設定
-SECRET_KEY = "your-secret-key-here"
+SECRET_KEY = "your-secret-key-here-change-in-production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -73,6 +68,15 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
+# ヘルスチェック
+@app.get("/")
+async def root():
+    return {"message": "賞味期限管理アプリ API", "status": "running"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy"}
+
 # 認証エンドポイント
 @app.post("/auth/signup", response_model=dict)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
@@ -101,20 +105,13 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 
 @app.post("/auth/login", response_model=dict)
 async def login(user: UserLogin, db: Session = Depends(get_db)):
-    print(f"ログイン試行: ユーザー名={user.username}")
-    
     db_user = db.query(User).filter(User.username == user.username).first()
     if not db_user:
-        print(f"ユーザー '{user.username}' が見つかりません")
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
-    print(f"ユーザー発見: ID={db_user.user_id}, ユーザー名={db_user.username}")
     
     if not verify_password(user.password, db_user.password):
-        print("パスワードが一致しません")
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
-    print("認証成功")
     access_token = create_access_token(data={"sub": str(db_user.user_id)})
     return {"token": access_token}
 
@@ -200,37 +197,6 @@ async def get_notifications(db: Session = Depends(get_db), user_id: int = Depend
     notifications = db.query(Notification).filter(Notification.user_id == user_id).all()
     return notifications
 
-# 静的ファイルの提供（Reactビルドファイル）
-if STATIC_DIR.exists():
-    # 静的ファイル（CSS, JS, 画像など）
-    app.mount("/static", StaticFiles(directory=str(STATIC_DIR / "static")), name="static")
-    
-    # favicon.ico の提供
-    @app.get("/favicon.ico")
-    async def favicon():
-        favicon_path = STATIC_DIR / "favicon.ico"
-        if favicon_path.exists():
-            return FileResponse(favicon_path)
-        else:
-            # SVGファビコンがあればそれを返す
-            svg_favicon_path = STATIC_DIR / "favicon.svg"
-            if svg_favicon_path.exists():
-                return FileResponse(svg_favicon_path)
-            raise HTTPException(status_code=404, detail="Favicon not found")
-    
-    # すべてのルートでReactアプリを返す（SPAルーティング対応）
-    @app.get("/{full_path:path}")
-    async def serve_react_app(full_path: str):
-        # APIルートは除外
-        if full_path.startswith("auth/") or full_path.startswith("categories") or \
-           full_path.startswith("items") or full_path.startswith("purchase-lists") or \
-           full_path.startswith("notifications"):
-            raise HTTPException(status_code=404, detail="Not found")
-        
-        index_path = STATIC_DIR / "index.html"
-        if index_path.exists():
-            return FileResponse(index_path)
-        raise HTTPException(status_code=404, detail="React app not found")
 
 if __name__ == "__main__":
     import uvicorn
