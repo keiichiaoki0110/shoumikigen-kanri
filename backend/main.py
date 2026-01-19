@@ -1,10 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
+import os
+from pathlib import Path
 
 from database import SessionLocal, engine, Base
 from models import User, Category, Item, PurchaseList, Notification
@@ -13,7 +17,11 @@ from schemas import *
 # データベースの初期化
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="賞味期限管理システム API")
+app = FastAPI(title="賞味期限管理アプリ API")
+
+# 静的ファイルのパス設定
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR.parent / "frontend" / "build"
 
 # CORS設定
 app.add_middleware(
@@ -191,6 +199,38 @@ async def update_purchase_status(purchase_id: int, db: Session = Depends(get_db)
 async def get_notifications(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
     notifications = db.query(Notification).filter(Notification.user_id == user_id).all()
     return notifications
+
+# 静的ファイルの提供（Reactビルドファイル）
+if STATIC_DIR.exists():
+    # 静的ファイル（CSS, JS, 画像など）
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR / "static")), name="static")
+    
+    # favicon.ico の提供
+    @app.get("/favicon.ico")
+    async def favicon():
+        favicon_path = STATIC_DIR / "favicon.ico"
+        if favicon_path.exists():
+            return FileResponse(favicon_path)
+        else:
+            # SVGファビコンがあればそれを返す
+            svg_favicon_path = STATIC_DIR / "favicon.svg"
+            if svg_favicon_path.exists():
+                return FileResponse(svg_favicon_path)
+            raise HTTPException(status_code=404, detail="Favicon not found")
+    
+    # すべてのルートでReactアプリを返す（SPAルーティング対応）
+    @app.get("/{full_path:path}")
+    async def serve_react_app(full_path: str):
+        # APIルートは除外
+        if full_path.startswith("auth/") or full_path.startswith("categories") or \
+           full_path.startswith("items") or full_path.startswith("purchase-lists") or \
+           full_path.startswith("notifications"):
+            raise HTTPException(status_code=404, detail="Not found")
+        
+        index_path = STATIC_DIR / "index.html"
+        if index_path.exists():
+            return FileResponse(index_path)
+        raise HTTPException(status_code=404, detail="React app not found")
 
 if __name__ == "__main__":
     import uvicorn
