@@ -36,6 +36,19 @@ yarn build
 
 ## 🌐 PythonAnywhereでの設定
 
+### 重要: ASGI → WSGI変換について
+PythonAnywhereは**WSGIベース**の環境のため、FastAPI（ASGIベース）を直接実行できません。
+そのため、**a2wsgi**ライブラリを使用してASGIアプリをWSGIに変換します。
+
+```
+FastAPI (ASGI) → a2wsgi (変換) → WSGI → PythonAnywhere
+```
+
+この変換により以下が可能になります:
+- ✅ FastAPIの全機能が使用可能
+- ✅ 非同期処理も動作
+- ✅ JWT認証、CORS、その他のミドルウェアも正常動作
+
 ### 1. ファイルのアップロード
 - GitHubリポジトリからクローン、または直接アップロード
 - `backend/` と `frontend/build/` の両方が必要
@@ -45,6 +58,8 @@ yarn build
 mkvirtualenv --python=/usr/bin/python3.10 myenv
 pip install -r backend/requirements.txt
 ```
+
+**重要**: `requirements.txt`に`a2wsgi==1.10.10`が含まれていることを確認してください。
 
 ### 3. WSGIファイルの設定
 PythonAnywhereのWSGI設定ファイル（`/var/www/your_username_pythonanywhere_com_wsgi.py`）:
@@ -61,8 +76,12 @@ if project_home not in sys.path:
 # 環境変数の設定（必要に応じて）
 os.environ['SECRET_KEY'] = 'your-production-secret-key-here'
 
-# FastAPIアプリケーションのインポート
-from main import app as application
+# FastAPIアプリケーションのインポートとWSGI変換
+from main import app
+from a2wsgi import ASGIMiddleware
+
+# ASGIアプリ(FastAPI)をWSGIアプリに変換
+application = ASGIMiddleware(app)
 ```
 
 ### 4. 環境変数の設定（推奨）
@@ -83,6 +102,42 @@ from main import app as application
 - `frontend/build/` ディレクトリが存在しない場合、静的ファイル提供は無効化されます
 
 ## 🐛 トラブルシューティング
+
+### 502 Bad Gateway エラー
+**症状**: ブラウザで502エラーが表示される
+
+**原因と解決策**:
+1. **a2wsgiがインストールされていない**
+   ```bash
+   pip install a2wsgi==1.10.10
+   ```
+
+2. **WSGIファイルが正しく設定されていない**
+   - `from a2wsgi import ASGIMiddleware`が含まれているか確認
+   - `application = ASGIMiddleware(app)`が正しく記述されているか確認
+
+3. **Pythonプロセスが起動していない**
+   ```bash
+   ps aux | grep python
+   ```
+   プロセスが見つからない場合、エラーログを確認:
+   ```bash
+   tail -n 50 /var/log/your_username.pythonanywhere.com.error.log
+   ```
+
+4. **依存関係の問題**
+   ```bash
+   # すべての依存関係を再インストール
+   pip install -r backend/requirements.txt --force-reinstall
+   ```
+
+5. **main.pyのインポートエラー**
+   ```bash
+   # テストスクリプトで確認
+   python3
+   >>> from main import app
+   >>> print(app)
+   ```
 
 ### Favicon 404エラー
 **エラーログ例:**
