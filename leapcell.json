@@ -5,6 +5,11 @@
   "start": {
     "command": "cd backend && uvicorn main:app --host 0.0.0.0 --port 8080"
   },
+  "healthcheck": {
+    "path": "/health",
+    "interval": 30,
+    "timeout": 10
+  },
   "env": {
     "PYTHON_VERSION": "3.11"
   }
