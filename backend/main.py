@@ -81,6 +81,12 @@ async def root():
 async def health_check():
     return {"status": "healthy"}
 
+# Leapcellのデフォルトヘルスチェックパス対応（タイポを含む）
+@app.get("/kaithhealthcheck")
+@app.get("/kaithheathcheck")
+async def leapcell_healthcheck():
+    return {"status": "healthy", "message": "Leapcell health check"}
+
 # 認証エンドポイント
 @app.post("/auth/signup", response_model=dict)
 async def signup(user: UserCreate, db: Session = Depends(get_db)):
