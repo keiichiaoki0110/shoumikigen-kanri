@@ -1,1 +1,1 @@
-web: cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT
+web: cd backend && python -c "from database import engine, Base; from models import User, Category, Item, PurchaseList, Notification; Base.metadata.create_all(bind=engine); print('Database initialized')" && python init_data.py && uvicorn main:app --host 0.0.0.0 --port $PORT
