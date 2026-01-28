@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import jwt
 from passlib.context import CryptContext
+import os
 
 from database import SessionLocal, engine, Base
 from models import User, Category, Item, PurchaseList, Notification
@@ -15,22 +16,25 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="賞味期限管理アプリ API")
 
+# 環境変数から設定を取得
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
 # CORS設定
+allowed_origins = [
+    "http://localhost:3000",  # ローカル開発用
+    FRONTEND_URL,  # 本番環境のフロントエンド
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "https://keiichiaoki0110.pythonanywhere.com"
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# セキュリティ設定
-SECRET_KEY = "your-secret-key-here-change-in-production"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer()
