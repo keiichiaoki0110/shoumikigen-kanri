@@ -13,18 +13,18 @@ import Settings from './components/Settings';
 
 function App() {
   const [token, setToken] = useState(localStorage.getItem('token'));
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (token) {
       // トークンが有効かチェック
       const tokenData = parseJwt(token);
       if (tokenData && tokenData.exp * 1000 > Date.now()) {
-        setUser({ id: tokenData.sub });
+        // トークンは有効
       } else {
         handleLogout();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const parseJwt = (token) => {
@@ -43,7 +43,6 @@ function App() {
   const handleLogout = () => {
     localStorage.removeItem('token');
     setToken(null);
-    setUser(null);
   };
 
   return (

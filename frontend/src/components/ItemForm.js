@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import apiClient from '../api/client';
-import dayjs from 'dayjs';
 
 const ItemForm = () => {
   const [formData, setFormData] = useState({
@@ -24,6 +23,7 @@ const ItemForm = () => {
     if (isEdit) {
       fetchItem();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const fetchCategories = async () => {
