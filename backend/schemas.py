@@ -50,7 +50,7 @@ class UserResponse(BaseModel):
     created_at: datetime
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Category schemas
 class CategoryCreate(BaseModel):
@@ -63,7 +63,7 @@ class CategoryResponse(BaseModel):
     description: Optional[str]
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Item schemas
 class ItemCreate(BaseModel):
@@ -92,7 +92,7 @@ class ItemResponse(BaseModel):
     auto_repurchase: bool
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # PurchaseList schemas
 class PurchaseListCreate(BaseModel):
@@ -109,7 +109,7 @@ class PurchaseListResponse(BaseModel):
     purchased_at: Optional[datetime]
     
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # Notification schemas
 class NotificationResponse(BaseModel):
@@ -121,4 +121,4 @@ class NotificationResponse(BaseModel):
     is_read: bool
     
     class Config:
-        from_attributes = True
+        orm_mode = True
