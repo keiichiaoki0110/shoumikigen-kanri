@@ -28,12 +28,17 @@ allowed_origins = [
     FRONTEND_URL,  # 本番環境のフロントエンド
 ]
 
+# Vercelの場合、複数のURLが生成されるため、すべて許可
+if FRONTEND_URL != "http://localhost:3000":
+    allowed_origins.append("https://*.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origin_regex=r"https://.*\.vercel\.app",
 )
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
