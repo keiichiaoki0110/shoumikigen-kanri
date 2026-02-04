@@ -19,10 +19,11 @@ connect_args = {}
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 elif SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
-    # PostgreSQLの場合、SSL接続の安定性を向上
+    # PostgreSQLの場合、SSL接続を有効化
+    # Neon DBはstatement_timeoutをサポートしないため削除
     connect_args = {
         "connect_timeout": 10,
-        "options": "-c statement_timeout=30000"  # 30秒のタイムアウト
+        "sslmode": "require"  # SSL必須
     }
 
 # エンジンの設定
