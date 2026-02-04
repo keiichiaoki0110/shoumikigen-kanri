@@ -30,18 +30,16 @@ engine_kwargs = {
     "connect_args": connect_args
 }
 
-# PostgreSQLの場合、接続プールとSSL設定を追加
+# サーバーレス環境（Leapcell）ではNullPoolを使用
+# 接続プールは状態を保持するため、サーバーレス環境では問題が発生する
+engine_kwargs["poolclass"] = NullPool
+
+# PostgreSQLの場合、追加設定
 if SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
     engine_kwargs.update({
-        "pool_size": 5,  # 接続プールサイズ
-        "max_overflow": 10,  # 最大オーバーフロー接続数
         "pool_pre_ping": True,  # 接続前に接続の有効性を確認
-        "pool_recycle": 3600,  # 1時間ごとに接続をリサイクル
         "echo": False  # SQLログを無効化（本番環境）
     })
-else:
-    # SQLiteの場合はNullPoolを使用（Leapcellのサーバーレス環境対応）
-    engine_kwargs["poolclass"] = NullPool
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
