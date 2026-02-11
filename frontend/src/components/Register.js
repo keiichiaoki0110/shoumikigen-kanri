@@ -124,11 +124,11 @@ const Register = () => {
               className="form-control"
               placeholder="ユーザー名を入力してください（1-50文字）"
               minLength="1"
-              maxLength="50"
+              maxLength="20"
               required
             />
             <small className="form-text text-muted">
-              1文字以上50文字以下で入力してください
+              1文字以上20文字以下で入力してください
             </small>
           </div>
 

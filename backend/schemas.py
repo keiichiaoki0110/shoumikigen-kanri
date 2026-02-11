@@ -5,7 +5,7 @@ import re
 
 # User schemas
 class UserCreate(BaseModel):
-    username: str = Field(..., min_length=1, max_length=50, description="ユーザー名は1文字以上50文字以下で入力してください")
+    username: str = Field(..., min_length=1, max_length=20, description="ユーザー名は1文字以上20文字以下で入力してください")
     email: str = Field(..., max_length=100, description="有効なメールアドレスを入力してください")
     password: str = Field(..., min_length=8, max_length=100, description="パスワードは8文字以上の英数字複合で入力してください")
     
