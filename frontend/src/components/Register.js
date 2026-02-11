@@ -31,11 +31,6 @@ const Register = () => {
       return;
     }
 
-    if (formData.username.trim().length < 1) {
-      setError('ユーザー名は1文字以上で入力してください');
-      return;
-    }
-
     if (!formData.email.trim()) {
       setError('メールアドレスは空欄にできません');
       return;
@@ -122,7 +117,7 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               className="form-control"
-              placeholder="ユーザー名を入力してください（1-50文字）"
+              placeholder="ユーザー名を入力してください（1-20文字）"
               minLength="1"
               maxLength="20"
               required
@@ -144,9 +139,11 @@ const Register = () => {
               maxLength="100"
               required
             />
-            <small className="form-text text-muted">
-              有効なメールアドレスを入力してください
-            </small>
+            {error && error.includes('メールアドレス') && (
+              <small className="form-text text-danger">
+                有効なメールアドレスを入力してください
+              </small>
+            )}
           </div>
 
           <div className="form-group">
@@ -162,9 +159,6 @@ const Register = () => {
               maxLength="100"
               required
             />
-            <small className="form-text text-muted">
-              8文字以上で英字と数字を両方含めてください
-            </small>
           </div>
 
           <div className="form-group">
@@ -180,9 +174,6 @@ const Register = () => {
               maxLength="100"
               required
             />
-            <small className="form-text text-muted">
-              確認のため再度パスワードを入力してください
-            </small>
           </div>
 
           <button 
