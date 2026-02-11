@@ -45,6 +45,16 @@ const Register = () => {
       setError('パスワードは8文字以上で入力してください');
       return;
     }
+    //スペースを含むパスワードを拒否
+    if(formData.password.includes(' ')){
+      setError('パスワードにスペースを含めることはできません');
+      return;
+    }
+    //英数字のみを許可（記号は不可)
+    if(!/^[a-zA-Z0-9]+$/.test(formData.password)){
+      setError('パスワードは英数字のみで入力してください');
+      return;
+    }
 
     // 英数字複合チェック
     const hasAlpha = /[a-zA-Z]/.test(formData.password);

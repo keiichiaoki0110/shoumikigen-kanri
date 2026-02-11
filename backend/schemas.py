@@ -27,7 +27,13 @@ class UserCreate(BaseModel):
     def validate_password(cls, v):
         if not v or len(v) < 8:
             raise ValueError('パスワードは8文字以上で入力してください')
+        #スペースを含むパスワードを拒否
+        if ' ' in v:
+            raise ValueError('パスワードにスペースを含めることはできません')
         
+        #英数字のみを許可（記号は不可)
+        if not re.match(r'^[a-zA-Z0-9]+$', v):
+            raise ValueError('パスワードには英数字のみを含める必要があります')
         # 英数字複合チェック
         has_alpha = bool(re.search(r'[a-zA-Z]', v))
         has_digit = bool(re.search(r'[0-9]', v))
