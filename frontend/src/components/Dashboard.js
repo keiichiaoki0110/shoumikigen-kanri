@@ -159,7 +159,7 @@ const Dashboard = () => {
         <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <Link to="/items/new" className="btn btn-success">新しい商品を追加</Link>
           <Link to="/purchase-list" className="btn btn-primary">購入リストを確認</Link>
-          <Link to="/categories" className="btn btn-warning">カテゴリを管理</Link>
+          <Link to="/categories" className="btn btn-primary">カテゴリを管理</Link>
         </div>
       </div>
     </div>

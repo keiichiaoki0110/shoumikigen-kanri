@@ -145,7 +145,7 @@ const ItemList = () => {
                     <td>
                       <Link 
                         to={`/items/edit/${item.item_id}`} 
-                        className="btn btn-warning"
+                        className="btn btn-primary"
                         style={{ marginRight: '10px' }}
                       >
                         編集
