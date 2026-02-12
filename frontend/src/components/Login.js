@@ -37,9 +37,16 @@ const Login = ({ onLogin }) => {
       });
       
       if (err.response?.data?.detail) {
-        setError(err.response.data.detail);
+        //英語のエラーメッセージを日本語に変換
+        const detail = err.response.data.detail;
+        if(detail === 'Invalid credentials'|| detail.toLowerCase().includes('invalid')||
+            detail.toLowerCase().includes('credentials')){
+          setError('メールアドレスまたはパスワードが正しくありません');
+        } else {
+          setError(err.response.data.detail);
+        }
       } else if (err.response?.status === 401) {
-        setError('ユーザー名またはパスワードが正しくありません');
+        setError('メールアドレスまたはパスワードが正しくありません');
       } else {
         setError('ログインに失敗しました。しばらくしてから再度お試しください。');
       }

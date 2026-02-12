@@ -122,13 +122,14 @@ async def signup(user: UserCreate, db: Session = Depends(get_db)):
 async def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == user.username).first()
     if not db_user:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="メールアドレスまたはパスワードが正しくありません")
     
     if not verify_password(user.password, db_user.password):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(status_code=401, detail="メールアドレスまたはパスワードが正しくありません")
     
     access_token = create_access_token(data={"sub": str(db_user.user_id)})
-    return {"token": access_token}
+    return {"token": access_token,"token_type":"bearer"}
+
 
 # カテゴリエンドポイント
 @app.get("/categories", response_model=list[CategoryResponse])
