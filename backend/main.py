@@ -207,6 +207,16 @@ async def update_purchase_status(purchase_id: int, db: Session = Depends(get_db)
     db.commit()
     return {"message": "Purchase completed"}
 
+@app.delete("/purchase-lists/{purchase_id}")
+async def delete_purchase_list(purchase_id: int, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
+    db_purchase = db.query(PurchaseList).filter(PurchaseList.purchase_id == purchase_id, PurchaseList.user_id == user_id).first()
+    if not db_purchase:
+        raise HTTPException(status_code=404, detail="Purchase list not found")
+    
+    db.delete(db_purchase)
+    db.commit()
+    return {"message": "Purchase list deleted"}
+
 # 通知エンドポイント
 @app.get("/notifications", response_model=list[NotificationResponse])
 async def get_notifications(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):

@@ -68,6 +68,20 @@ const PurchaseList = () => {
     }
   };
 
+  const deletePurchaseItem = async (purchaseId) => {
+    if (!window.confirm('このアイテムを削除してもよろしいですか？')) {
+      return;
+    }
+    
+    try {
+      await apiClient.delete(`/purchase-lists/${purchaseId}`);
+      setPurchaseItems(purchaseItems.filter(item => item.purchase_id !== purchaseId));
+    } catch (error) {
+      console.error('Failed to delete purchase item:', error);
+      alert('削除に失敗しました');
+    }
+  };
+
   const getCategoryName = (categoryId) => {
     const category = categories.find(cat => cat.category_id === categoryId);
     return category ? category.category_name : '未分類';
@@ -165,10 +179,17 @@ const PurchaseList = () => {
                       <button 
                         onClick={() => markAsPurchased(item.purchase_id)}
                         className="btn btn-success"
+                        style={{ marginRight: '10px' }}
                       >
                         購入完了
                       </button>
                     )}
+                    <button 
+                      onClick={() => deletePurchaseItem(item.purchase_id)}
+                      className="btn btn-danger"
+                    >
+                      削除
+                    </button>
                   </td>
                 </tr>
               ))}

@@ -66,7 +66,7 @@ const Login = ({ onLogin }) => {
           </div>
         )}
 
-        <div>
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
           <div className="form-group">
             <label>ユーザー名</label>
             <input
@@ -75,13 +75,8 @@ const Login = ({ onLogin }) => {
               value={formData.username}
               onChange={handleChange}
               className="form-control"
+              autoComplete="username"
               required
-              onKeyDown={(e) => {
-                if(e.key === 'Enter'){
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
             />
           </div>
 
@@ -93,26 +88,20 @@ const Login = ({ onLogin }) => {
               value={formData.password}
               onChange={handleChange}
               className="form-control"
+              autoComplete="current-password"
               required
-              onKeyDown={(e) => {
-                if(e.key === 'Enter'){
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
             />
           </div>
 
           <button 
-            type="button" 
+            type="submit" 
             className="btn btn-primary"
             style={{ width: '100%', marginBottom: '20px' }}
             disabled={loading}
-            onClick={handleSubmit}
           >
             {loading ? 'ログイン中...' : 'ログイン'}
           </button>
-        </div>
+        </form>
 
         <div style={{ textAlign: 'center' }}>
           <Link to="/register">アカウントをお持ちでない方はこちら</Link>
