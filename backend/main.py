@@ -221,9 +221,17 @@ async def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_
         
         # 使用状態が「使用中」または「使用済み」に変更され、かつ自動再購入がONの場合
         new_usage_status = db_item.usage_status or "unused"
+        
+        # デバッグログ
+        print(f"[自動購入チェック] 商品: {db_item.item_name}")
+        print(f"  - 旧状態: {old_usage_status} → 新状態: {new_usage_status}")
+        print(f"  - 自動再購入: {db_item.auto_repurchase}")
+        
         if (old_usage_status == "unused" and 
             new_usage_status in ["in_use", "used"] and 
             db_item.auto_repurchase):
+            
+            print(f"  - 条件を満たしました。購入リストに追加します。")
             
             # 購入リストに同じ商品が既に存在しないかチェック（未購入のもの）
             existing_purchase = db.query(PurchaseList).filter(
@@ -245,7 +253,11 @@ async def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_
                     is_purchased=False
                 )
                 db.add(new_purchase)
-                print(f"自動再購入: {db_item.item_name} を購入リストに追加しました")
+                print(f"✅ 自動再購入: {db_item.item_name} を購入リストに追加しました")
+            else:
+                print(f"  - 購入リストに既に存在するためスキップしました")
+        else:
+            print(f"  - 条件を満たさないため、購入リストに追加しませんでした")
         
         db.commit()
         db.refresh(db_item)
