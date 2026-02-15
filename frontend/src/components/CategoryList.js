@@ -65,6 +65,24 @@ const CategoryList = () => {
     setFormData({ category_name: '', description: '' });
   };
 
+  const handleDelete = async (categoryId) => {
+    if (!window.confirm('このカテゴリを削除してもよろしいですか？\n※商品が登録されているカテゴリは削除できません。')) {
+      return;
+    }
+
+    try {
+      await apiClient.delete(`/categories/${categoryId}`);
+      setCategories(categories.filter(cat => cat.category_id !== categoryId));
+      setError('');
+    } catch (err) {
+      if (err.response?.status === 400) {
+        setError('このカテゴリには商品が登録されているため削除できません');
+      } else {
+        setError('カテゴリの削除に失敗しました');
+      }
+    }
+  };
+
   if (loading) {
     return <div className="container">読み込み中...</div>;
   }
@@ -152,6 +170,12 @@ const CategoryList = () => {
                       style={{ marginRight: '10px' }}
                     >
                       編集
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(category.category_id)}
+                      className="btn btn-danger"
+                    >
+                      削除
                     </button>
                   </td>
                 </tr>

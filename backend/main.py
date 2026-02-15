@@ -145,6 +145,21 @@ async def create_category(category: CategoryCreate, db: Session = Depends(get_db
     db.refresh(db_category)
     return db_category
 
+@app.delete("/categories/{category_id}")
+async def delete_category(category_id: int, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
+    db_category = db.query(Category).filter(Category.category_id == category_id).first()
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    # カテゴリに紐づく商品があるかチェック
+    items_count = db.query(Item).filter(Item.category_id == category_id).count()
+    if items_count > 0:
+        raise HTTPException(status_code=400, detail="このカテゴリには商品が登録されているため削除できません")
+    
+    db.delete(db_category)
+    db.commit()
+    return {"message": "Category deleted"}
+
 # 商品エンドポイント
 @app.get("/items", response_model=list[ItemResponse])
 async def get_items(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
