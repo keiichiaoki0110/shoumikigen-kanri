@@ -60,6 +60,15 @@ const ItemList = () => {
     }
   };
 
+  const getUsageStatusText = (usageStatus) => {
+    switch (usageStatus) {
+      case 'unused': return '未使用';
+      case 'in_use': return '使用中';
+      case 'used': return '使用済み';
+      default: return '未使用';
+    }
+  };
+
   const getCategoryName = (categoryId) => {
     const category = categories.find(cat => cat.category_id === categoryId);
     return category ? category.category_name : '未分類';
@@ -123,7 +132,8 @@ const ItemList = () => {
                 <th>商品名</th>
                 <th>カテゴリ</th>
                 <th>賞味期限</th>
-                <th>状態</th>
+                <th>賞味期限状態</th>
+                <th>使用状態</th>
                 <th>自動再購入</th>
                 <th>操作</th>
               </tr>
@@ -139,6 +149,18 @@ const ItemList = () => {
                     <td>
                       <span className={`status-${status}`}>
                         {getStatusText(status)}
+                      </span>
+                    </td>
+                    <td>
+                      <span style={{ 
+                        padding: '4px 8px', 
+                        borderRadius: '4px',
+                        backgroundColor: item.usage_status === 'unused' ? '#d4edda' : 
+                                       item.usage_status === 'in_use' ? '#fff3cd' : '#f8d7da',
+                        color: item.usage_status === 'unused' ? '#155724' : 
+                               item.usage_status === 'in_use' ? '#856404' : '#721c24'
+                      }}>
+                        {getUsageStatusText(item.usage_status)}
                       </span>
                     </td>
                     <td>{item.auto_repurchase ? 'ON' : 'OFF'}</td>

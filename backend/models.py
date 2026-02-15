@@ -28,6 +28,7 @@ class Item(Base):
     item_name = Column(String)
     expiry_date = Column(Date)
     status = Column(String, default="fresh")  # fresh, warning, expired
+    usage_status = Column(String, default="unused")  # unused, in_use, used
     purchase_date = Column(Date)
     quantity = Column(Integer, default=1)
     unit = Column(String, default="個")

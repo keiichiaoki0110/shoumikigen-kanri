@@ -8,6 +8,7 @@ const ItemForm = () => {
     category_id: '',
     expiry_date: '',
     purchase_date: '',
+    usage_status: 'unused',
     auto_repurchase: false
   });
   const [categories, setCategories] = useState([]);
@@ -45,6 +46,7 @@ const ItemForm = () => {
           category_id: item.category_id,
           expiry_date: item.expiry_date,
           purchase_date: item.purchase_date || '',
+          usage_status: item.usage_status || 'unused',
           auto_repurchase: item.auto_repurchase
         });
       }
@@ -153,6 +155,21 @@ const ItemForm = () => {
               onChange={handleChange}
               className="form-control"
             />
+          </div>
+
+          <div className="form-group">
+            <label>使用状態 *</label>
+            <select
+              name="usage_status"
+              value={formData.usage_status}
+              onChange={handleChange}
+              className="form-control"
+              required
+            >
+              <option value="unused">未使用</option>
+              <option value="in_use">使用中</option>
+              <option value="used">使用済み</option>
+            </select>
           </div>
 
           <div className="form-group">

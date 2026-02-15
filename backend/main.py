@@ -22,8 +22,11 @@ async def startup_event():
     """アプリケーション起動時にマイグレーションを実行"""
     try:
         print("=== マイグレーション実行中 ===")
-        from migrate_add_quantity_unit import migrate
-        migrate()
+        from migrate_add_quantity_unit import migrate as migrate_quantity_unit
+        migrate_quantity_unit()
+        
+        from migrate_add_usage_status import migrate as migrate_usage_status
+        migrate_usage_status()
         print("=== マイグレーション完了 ===")
     except Exception as e:
         print(f"⚠️  マイグレーション実行中にエラー: {e}")

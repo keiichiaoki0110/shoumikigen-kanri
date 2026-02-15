@@ -79,6 +79,7 @@ class ItemCreate(BaseModel):
     purchase_date: Optional[date] = None
     quantity: Optional[int] = 1
     unit: Optional[str] = "個"
+    usage_status: Optional[str] = "unused"  # unused, in_use, used
     auto_repurchase: bool = False
 
 class ItemUpdate(BaseModel):
@@ -86,6 +87,7 @@ class ItemUpdate(BaseModel):
     item_name: Optional[str] = None
     expiry_date: Optional[date] = None
     status: Optional[str] = None
+    usage_status: Optional[str] = None  # unused, in_use, used
     purchase_date: Optional[date] = None
     quantity: Optional[int] = None
     unit: Optional[str] = None
@@ -98,6 +100,7 @@ class ItemResponse(BaseModel):
     item_name: str
     expiry_date: date
     status: str
+    usage_status: Optional[str] = "unused"  # unused, in_use, used
     purchase_date: Optional[date]
     quantity: Optional[int] = 1
     unit: Optional[str] = "個"
