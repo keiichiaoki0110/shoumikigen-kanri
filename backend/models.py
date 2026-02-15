@@ -29,6 +29,8 @@ class Item(Base):
     expiry_date = Column(Date)
     status = Column(String, default="fresh")  # fresh, warning, expired
     purchase_date = Column(Date)
+    quantity = Column(Integer, default=1)
+    unit = Column(String, default="個")
     auto_repurchase = Column(Boolean, default=False)
 
 class PurchaseList(Base):
@@ -36,8 +38,11 @@ class PurchaseList(Base):
     
     purchase_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"))
-    item_name = Column(String)
+    item_name = Column(String)  # 後方互換性のために残す
+    product_name = Column(String)  # 新しいカラム名
     category_id = Column(Integer, ForeignKey("categories.category_id"))
+    quantity = Column(Integer, default=1)
+    unit = Column(String, default="個")
     is_purchased = Column(Boolean, default=False)
     added_at = Column(DateTime, default=func.now())
     purchased_at = Column(DateTime)

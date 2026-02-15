@@ -14,7 +14,6 @@ const Navbar = ({ onLogout }) => {
             <li><Link to="/items" className="nav-link">商品管理</Link></li>
             <li><Link to="/purchase-list" className="nav-link">購入リスト</Link></li>
             <li><Link to="/categories" className="nav-link">カテゴリ</Link></li>
-            <li><Link to="/notifications" className="nav-link">通知</Link></li>
             <li><Link to="/settings" className="nav-link">設定</Link></li>
             <li>
               <button 

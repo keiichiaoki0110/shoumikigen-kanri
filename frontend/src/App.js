@@ -8,7 +8,6 @@ import ItemList from './components/ItemList';
 import ItemForm from './components/ItemForm';
 import CategoryList from './components/CategoryList';
 import PurchaseList from './components/PurchaseList';
-import NotificationList from './components/NotificationList';
 import Settings from './components/Settings';
 
 function App() {
@@ -81,10 +80,6 @@ function App() {
           <Route 
             path="/purchase-list" 
             element={token ? <PurchaseList /> : <Navigate to="/login" />} 
-          />
-          <Route 
-            path="/notifications" 
-            element={token ? <NotificationList /> : <Navigate to="/login" />} 
           />
           <Route 
             path="/settings" 
