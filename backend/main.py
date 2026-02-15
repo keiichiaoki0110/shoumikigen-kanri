@@ -30,6 +30,9 @@ async def startup_event():
         
         from migrate_add_product_name import migrate as migrate_product_name
         migrate_product_name()
+        
+        from migrate_add_purchase_quantity_unit import migrate as migrate_purchase_quantity_unit
+        migrate_purchase_quantity_unit()
         print("=== マイグレーション完了 ===")
     except Exception as e:
         print(f"⚠️  マイグレーション実行中にエラー: {e}")
