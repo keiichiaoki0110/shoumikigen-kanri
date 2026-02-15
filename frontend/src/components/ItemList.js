@@ -8,6 +8,7 @@ const ItemList = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [usageFilter, setUsageFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -77,8 +78,9 @@ const ItemList = () => {
   const filteredItems = items.filter(item => {
     const status = getItemStatus(item.expiry_date);
     const matchesFilter = filter === 'all' || status === filter;
+    const matchesUsageFilter = usageFilter === 'all' || item.usage_status === usageFilter;
     const matchesSearch = item.item_name.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    return matchesFilter && matchesUsageFilter && matchesSearch;
   });
 
   if (loading) {
@@ -96,7 +98,7 @@ const ItemList = () => {
       <div className="card" style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div>
-            <label>状態でフィルター:</label>
+            <label>賞味期限状態:</label>
             <select 
               value={filter} 
               onChange={(e) => setFilter(e.target.value)}
@@ -107,6 +109,20 @@ const ItemList = () => {
               <option value="fresh">新鮮</option>
               <option value="warning">注意</option>
               <option value="expired">期限切れ</option>
+            </select>
+          </div>
+          <div>
+            <label>使用状態:</label>
+            <select 
+              value={usageFilter} 
+              onChange={(e) => setUsageFilter(e.target.value)}
+              className="form-control"
+              style={{ width: 'auto', marginLeft: '10px' }}
+            >
+              <option value="all">すべて</option>
+              <option value="unused">未使用</option>
+              <option value="in_use">使用中</option>
+              <option value="used">使用済み</option>
             </select>
           </div>
           <div style={{ flex: 1 }}>
