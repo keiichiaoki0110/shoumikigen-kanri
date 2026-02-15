@@ -127,14 +127,10 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               className="form-control"
-              placeholder="ユーザー名を入力してください（1-20文字）"
               minLength="1"
               maxLength="20"
               required
             />
-            <small className="form-text text-muted">
-              1文字以上20文字以下で入力してください
-            </small>
           </div>
 
           <div className="form-group">
@@ -145,26 +141,19 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               className="form-control"
-              placeholder="example@example.com"
               maxLength="100"
               required
             />
-            {error && error.includes('メールアドレス') && (
-              <small className="form-text text-danger">
-                有効なメールアドレスを入力してください
-              </small>
-            )}
           </div>
 
           <div className="form-group">
-            <label>パスワード *</label>
+            <label>パスワード（8文字以上の英数字）*</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               className="form-control"
-              placeholder="8文字以上の英数字複合（例: abc12345）"
               minLength="8"
               maxLength="100"
               required
@@ -179,7 +168,6 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="form-control"
-              placeholder="上記と同じパスワード"
               minLength="8"
               maxLength="100"
               required

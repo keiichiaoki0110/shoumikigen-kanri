@@ -166,8 +166,8 @@ const CategoryList = () => {
                   <td>
                     <button 
                       onClick={() => handleEdit(category)}
-                      className="btn btn-primary"
-                      style={{ marginRight: '10px' }}
+                      className="btn btn-warning"
+                      style={{ marginRight: '10px', color: 'white' }}
                     >
                       編集
                     </button>

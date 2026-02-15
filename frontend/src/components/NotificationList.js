@@ -4,6 +4,7 @@ import apiClient from '../api/client';
 const NotificationList = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -17,6 +18,21 @@ const NotificationList = () => {
       console.error('Failed to fetch notifications:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const generateNotifications = async () => {
+    setGenerating(true);
+    try {
+      const response = await apiClient.post('/notifications/generate');
+      const data = response.data;
+      alert(`通知を生成しました:\n警告通知: ${data.warning_notifications}件\n期限切れ通知: ${data.expired_notifications}件\n自動購入リスト追加: ${data.auto_purchase_added}件`);
+      fetchNotifications();
+    } catch (error) {
+      console.error('Failed to generate notifications:', error);
+      alert('通知の生成に失敗しました');
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -50,7 +66,16 @@ const NotificationList = () => {
 
   return (
     <div className="container">
-      <h1>通知</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h1>通知</h1>
+        <button 
+          onClick={generateNotifications}
+          className="btn btn-primary"
+          disabled={generating}
+        >
+          {generating ? '生成中...' : '通知を生成'}
+        </button>
+      </div>
       
       <div className="card">
         {notifications.length > 0 ? (

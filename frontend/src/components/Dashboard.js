@@ -149,7 +149,7 @@ const Dashboard = () => {
           ) : (
             <p>期限切れの商品はありません</p>
           )}
-          <Link to="/items" className="btn btn-danger">確認する</Link>
+          <Link to="/items" className="btn btn-warning" style={{ color: 'white' }}>確認する</Link>
         </div>
       </div>
 

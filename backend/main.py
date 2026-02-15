@@ -235,8 +235,93 @@ async def delete_purchase_list(purchase_id: int, db: Session = Depends(get_db), 
 # 通知エンドポイント
 @app.get("/notifications", response_model=list[NotificationResponse])
 async def get_notifications(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
-    notifications = db.query(Notification).filter(Notification.user_id == user_id).all()
+    notifications = db.query(Notification).filter(Notification.user_id == user_id).order_by(Notification.notification_date.desc()).all()
     return notifications
+
+@app.post("/notifications/generate")
+async def generate_notifications(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
+    """ユーザーの商品に基づいて通知を生成"""
+    from datetime import date, timedelta
+    
+    today = date.today()
+    warning_date = today + timedelta(days=7)
+    
+    # ユーザーの全商品を取得
+    items = db.query(Item).filter(Item.user_id == user_id).all()
+    
+    warning_count = 0
+    expired_count = 0
+    auto_purchase_count = 0
+    
+    for item in items:
+        # 期限切れチェック
+        if item.expiry_date < today:
+            # 既存の通知があるかチェック
+            existing = db.query(Notification).filter(
+                Notification.item_id == item.item_id,
+                Notification.notification_type == 'expired',
+                Notification.notification_date == today
+            ).first()
+            
+            if not existing:
+                notification = Notification(
+                    item_id=item.item_id,
+                    user_id=user_id,
+                    notification_type='expired',
+                    notification_date=today,
+                    is_read=False
+                )
+                db.add(notification)
+                expired_count += 1
+                
+                # 自動再購入チェック
+                if item.auto_repurchase:
+                    # 購入リストに未購入の同じ商品がないかチェック
+                    existing_purchase = db.query(PurchaseList).filter(
+                        PurchaseList.user_id == user_id,
+                        PurchaseList.product_name == item.item_name,
+                        PurchaseList.is_purchased == False
+                    ).first()
+                    
+                    if not existing_purchase:
+                        purchase = PurchaseList(
+                            user_id=user_id,
+                            product_name=item.item_name,
+                            category_id=item.category_id,
+                            quantity=item.quantity,
+                            unit=item.unit,
+                            is_purchased=False
+                        )
+                        db.add(purchase)
+                        auto_purchase_count += 1
+        
+        # 警告チェック（7日以内に期限切れ）
+        elif today <= item.expiry_date <= warning_date:
+            existing = db.query(Notification).filter(
+                Notification.item_id == item.item_id,
+                Notification.notification_type == 'warning',
+                Notification.notification_date == today
+            ).first()
+            
+            if not existing:
+                notification = Notification(
+                    item_id=item.item_id,
+                    user_id=user_id,
+                    notification_type='warning',
+                    notification_date=today,
+                    is_read=False
+                )
+                db.add(notification)
+                warning_count += 1
+    
+    db.commit()
+    
+    return {
+        'success': True,
+        'warning_notifications': warning_count,
+        'expired_notifications': expired_count,
+        'auto_purchase_added': auto_purchase_count
+    }
 
 
 if __name__ == "__main__":
