@@ -16,6 +16,20 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="賞味期限管理アプリ API")
 
+# スタートアップイベント: マイグレーションを実行
+@app.on_event("startup")
+async def startup_event():
+    """アプリケーション起動時にマイグレーションを実行"""
+    try:
+        print("=== マイグレーション実行中 ===")
+        from migrate_add_quantity_unit import migrate
+        migrate()
+        print("=== マイグレーション完了 ===")
+    except Exception as e:
+        print(f"⚠️  マイグレーション実行中にエラー: {e}")
+        # マイグレーションが失敗してもアプリは起動する（カラムが既に存在する場合など）
+        pass
+
 # 環境変数から設定を取得
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here-change-in-production")
