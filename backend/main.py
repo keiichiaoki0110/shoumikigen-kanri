@@ -27,6 +27,9 @@ async def startup_event():
         
         from migrate_add_usage_status import migrate as migrate_usage_status
         migrate_usage_status()
+        
+        from migrate_add_product_name import migrate as migrate_product_name
+        migrate_product_name()
         print("=== マイグレーション完了 ===")
     except Exception as e:
         print(f"⚠️  マイグレーション実行中にエラー: {e}")
