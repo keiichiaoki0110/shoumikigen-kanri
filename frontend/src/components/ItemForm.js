@@ -75,6 +75,11 @@ const ItemForm = () => {
         purchase_date: formData.purchase_date || null
       };
 
+      // 新規作成時は使用状態を必ず"unused"にする
+      if (!isEdit) {
+        submitData.usage_status = 'unused';
+      }
+
       if (isEdit) {
         await apiClient.put(`/items/${id}`, submitData);
       } else {
@@ -157,20 +162,23 @@ const ItemForm = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>使用状態 *</label>
-            <select
-              name="usage_status"
-              value={formData.usage_status}
-              onChange={handleChange}
-              className="form-control"
-              required
-            >
-              <option value="unused">未使用</option>
-              <option value="in_use">使用中</option>
-              <option value="used">使用済み</option>
-            </select>
-          </div>
+          {/* 編集時のみ使用状態を表示 */}
+          {isEdit && (
+            <div className="form-group">
+              <label>使用状態 *</label>
+              <select
+                name="usage_status"
+                value={formData.usage_status}
+                onChange={handleChange}
+                className="form-control"
+                required
+              >
+                <option value="unused">未使用</option>
+                <option value="in_use">使用中</option>
+                <option value="used">使用済み</option>
+              </select>
+            </div>
+          )}
 
           <div className="form-group">
             <label style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
