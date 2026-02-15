@@ -205,47 +205,56 @@ async def create_item(item: ItemCreate, db: Session = Depends(get_db), user_id: 
 
 @app.put("/items/{item_id}", response_model=ItemResponse)
 async def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
-    db_item = db.query(Item).filter(Item.item_id == item_id, Item.user_id == user_id).first()
-    if not db_item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    
-    # 更新前の使用状態を保存
-    old_usage_status = db_item.usage_status
-    
-    for key, value in item.dict(exclude_unset=True).items():
-        setattr(db_item, key, value)
-    
-    # 使用状態が「使用中」または「使用済み」に変更され、かつ自動再購入がONの場合
-    new_usage_status = db_item.usage_status
-    if (old_usage_status == "unused" and 
-        new_usage_status in ["in_use", "used"] and 
-        db_item.auto_repurchase):
+    try:
+        db_item = db.query(Item).filter(Item.item_id == item_id, Item.user_id == user_id).first()
+        if not db_item:
+            raise HTTPException(status_code=404, detail="Item not found")
         
-        # 購入リストに同じ商品が既に存在しないかチェック（未購入のもの）
-        existing_purchase = db.query(PurchaseList).filter(
-            PurchaseList.user_id == user_id,
-            PurchaseList.item_name == db_item.item_name,
-            PurchaseList.is_purchased == False
-        ).first()
+        # 更新前の使用状態を保存（Noneの場合は"unused"として扱う）
+        old_usage_status = db_item.usage_status or "unused"
         
-        # 存在しない場合のみ追加
-        if not existing_purchase:
-            # 購入リストに追加
-            new_purchase = PurchaseList(
-                user_id=user_id,
-                item_name=db_item.item_name,
-                product_name=db_item.item_name,
-                category_id=db_item.category_id,
-                quantity=db_item.quantity or 1,
-                unit=db_item.unit or "個",
-                is_purchased=False
-            )
-            db.add(new_purchase)
-            print(f"自動再購入: {db_item.item_name} を購入リストに追加しました")
-    
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+        for key, value in item.dict(exclude_unset=True).items():
+            setattr(db_item, key, value)
+        
+        # 使用状態が「使用中」または「使用済み」に変更され、かつ自動再購入がONの場合
+        new_usage_status = db_item.usage_status or "unused"
+        if (old_usage_status == "unused" and 
+            new_usage_status in ["in_use", "used"] and 
+            db_item.auto_repurchase):
+            
+            # 購入リストに同じ商品が既に存在しないかチェック（未購入のもの）
+            existing_purchase = db.query(PurchaseList).filter(
+                PurchaseList.user_id == user_id,
+                PurchaseList.item_name == db_item.item_name,
+                PurchaseList.is_purchased == False
+            ).first()
+            
+            # 存在しない場合のみ追加
+            if not existing_purchase:
+                # 購入リストに追加
+                new_purchase = PurchaseList(
+                    user_id=user_id,
+                    item_name=db_item.item_name,
+                    product_name=db_item.item_name,
+                    category_id=db_item.category_id,
+                    quantity=db_item.quantity or 1,
+                    unit=db_item.unit or "個",
+                    is_purchased=False
+                )
+                db.add(new_purchase)
+                print(f"自動再購入: {db_item.item_name} を購入リストに追加しました")
+        
+        db.commit()
+        db.refresh(db_item)
+        return db_item
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"商品更新エラー: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"商品の更新に失敗しました: {str(e)}")
 
 @app.delete("/items/{item_id}")
 async def delete_item(item_id: int, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
