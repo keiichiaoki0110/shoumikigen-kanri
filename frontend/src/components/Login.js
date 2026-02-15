@@ -16,6 +16,10 @@ const Login = ({ onLogin }) => {
       ...prev,
       [name]: value
     }));
+    // 入力フィールドが変更されたらエラーをクリア
+    if (error) {
+      setError('');
+    }
   };
 
   const handleSubmit = async (e) => {
