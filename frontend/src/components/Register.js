@@ -127,6 +127,7 @@ const Register = () => {
               value={formData.username}
               onChange={handleChange}
               className="form-control"
+              placeholder="1-20文字で入力"
               minLength="1"
               maxLength="20"
               required
@@ -141,19 +142,21 @@ const Register = () => {
               value={formData.email}
               onChange={handleChange}
               className="form-control"
+              placeholder="example@email.com"
               maxLength="100"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>パスワード（8文字以上の英数字）*</label>
+            <label>パスワード *</label>
             <input
               type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               className="form-control"
+              placeholder="8文字以上の英数字"
               minLength="8"
               maxLength="100"
               required
@@ -168,6 +171,7 @@ const Register = () => {
               value={formData.confirmPassword}
               onChange={handleChange}
               className="form-control"
+              placeholder="同じパスワード"
               minLength="8"
               maxLength="100"
               required

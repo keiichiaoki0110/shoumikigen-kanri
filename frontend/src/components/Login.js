@@ -79,6 +79,7 @@ const Login = ({ onLogin }) => {
               value={formData.username}
               onChange={handleChange}
               className="form-control"
+              placeholder="1-20文字で入力"
               autoComplete="username"
               required
             />
@@ -92,6 +93,7 @@ const Login = ({ onLogin }) => {
               value={formData.password}
               onChange={handleChange}
               className="form-control"
+              placeholder="8文字以上の英数字"
               autoComplete="current-password"
               required
             />
