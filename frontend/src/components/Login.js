@@ -66,7 +66,7 @@ const Login = ({ onLogin }) => {
           </div>
         )}
 
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(e); }}>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>ユーザー名</label>
             <input

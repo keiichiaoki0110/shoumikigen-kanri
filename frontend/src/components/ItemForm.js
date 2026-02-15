@@ -81,7 +81,10 @@ const ItemForm = () => {
       
       navigate('/items');
     } catch (err) {
-      setError(isEdit ? '商品の更新に失敗しました' : '商品の作成に失敗しました');
+      console.error('商品保存エラー:', err);
+      const errorMessage = err.response?.data?.detail || 
+                          (isEdit ? '商品の更新に失敗しました' : '商品の作成に失敗しました');
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

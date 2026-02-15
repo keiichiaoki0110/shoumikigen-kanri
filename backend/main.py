@@ -168,11 +168,23 @@ async def get_items(db: Session = Depends(get_db), user_id: int = Depends(verify
 
 @app.post("/items", response_model=ItemResponse)
 async def create_item(item: ItemCreate, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
-    db_item = Item(**item.dict(), user_id=user_id)
-    db.add(db_item)
-    db.commit()
-    db.refresh(db_item)
-    return db_item
+    try:
+        # カテゴリの存在確認
+        category = db.query(Category).filter(Category.category_id == item.category_id).first()
+        if not category:
+            raise HTTPException(status_code=400, detail=f"カテゴリID {item.category_id} が存在しません")
+        
+        db_item = Item(**item.dict(), user_id=user_id)
+        db.add(db_item)
+        db.commit()
+        db.refresh(db_item)
+        return db_item
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        print(f"商品作成エラー: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"商品の作成に失敗しました: {str(e)}")
 
 @app.put("/items/{item_id}", response_model=ItemResponse)
 async def update_item(item_id: int, item: ItemUpdate, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):

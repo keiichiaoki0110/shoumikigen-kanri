@@ -77,6 +77,8 @@ class ItemCreate(BaseModel):
     item_name: str
     expiry_date: date
     purchase_date: Optional[date] = None
+    quantity: Optional[int] = 1
+    unit: Optional[str] = "個"
     auto_repurchase: bool = False
 
 class ItemUpdate(BaseModel):
@@ -85,6 +87,8 @@ class ItemUpdate(BaseModel):
     expiry_date: Optional[date] = None
     status: Optional[str] = None
     purchase_date: Optional[date] = None
+    quantity: Optional[int] = None
+    unit: Optional[str] = None
     auto_repurchase: Optional[bool] = None
 
 class ItemResponse(BaseModel):
@@ -95,6 +99,8 @@ class ItemResponse(BaseModel):
     expiry_date: date
     status: str
     purchase_date: Optional[date]
+    quantity: Optional[int] = 1
+    unit: Optional[str] = "個"
     auto_repurchase: bool
     
     class Config:
@@ -104,12 +110,17 @@ class ItemResponse(BaseModel):
 class PurchaseListCreate(BaseModel):
     item_name: str
     category_id: int
+    quantity: Optional[int] = 1
+    unit: Optional[str] = "個"
 
 class PurchaseListResponse(BaseModel):
     purchase_id: int
     user_id: int
-    item_name: str
+    item_name: Optional[str]
+    product_name: Optional[str]
     category_id: int
+    quantity: Optional[int] = 1
+    unit: Optional[str] = "個"
     is_purchased: bool
     added_at: datetime
     purchased_at: Optional[datetime]
