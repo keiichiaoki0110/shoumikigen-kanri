@@ -26,23 +26,30 @@ const CategoryList = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
 
-    try {
-      if (editingId) {
-        // 編集機能は今回は簡略化
-        setError('編集機能は今後実装予定です');
-      } else {
-        const response = await apiClient.post('/categories', formData);
-        setCategories([...categories, response.data]);
-        setFormData({ category_name: '', description: '' });
-      }
-    } catch (err) {
-      setError('カテゴリの作成に失敗しました');
+  try {
+if (editingId) {
+  // カテゴリを更新
+  await apiClient.put(`/categories/${editingId}`, formData);
+  setCategories(categories.map(cat =>
+    cat.category_id === editingId
+      ? { ...cat, category_name: formData.category_name, description: formData.description }
+      : cat
+  ));
+  setFormData({ category_name: '', description: '' });
+  setEditingId(null);
+} else {
+      const response = await apiClient.post('/categories', formData);
+      setCategories([...categories, response.data]);
+      setFormData({ category_name: '', description: '' });
     }
-  };
+  } catch (err) {
+    setError(editingId ? 'カテゴリの更新に失敗しました' : 'カテゴリの作成に失敗しました');
+  }
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;

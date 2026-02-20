@@ -162,27 +162,38 @@ async def get_categories(db: Session = Depends(get_db), user_id: int = Depends(v
 
 @app.post("/categories", response_model=CategoryResponse)
 async def create_category(category: CategoryCreate, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
+    # カテゴリ名の重複チェック
+    existing_category = db.query(Category).filter(Category.category_name == category.category_name).first()
+    if existing_category:
+        raise HTTPException(status_code=400, detail="このカテゴリ名は既に存在します")
+
     db_category = Category(**category.dict())
     db.add(db_category)
     db.commit()
     db.refresh(db_category)
     return db_category
 
-@app.delete("/categories/{category_id}")
-async def delete_category(category_id: int, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
+@app.put("/categories/{category_id}", response_model=CategoryResponse)
+async def update_category(category_id: int, category: CategoryCreate, db: Session = Depends(get_db), user_id: int = Depends(verify_token)):
     db_category = db.query(Category).filter(Category.category_id == category_id).first()
     if not db_category:
         raise HTTPException(status_code=404, detail="Category not found")
-    
-    # カテゴリに紐づく商品があるかチェック
-    items_count = db.query(Item).filter(Item.category_id == category_id).count()
-    if items_count > 0:
-        raise HTTPException(status_code=400, detail="このカテゴリには商品が登録されているため削除できません")
-    
-    db.delete(db_category)
-    db.commit()
-    return {"message": "Category deleted"}
 
+    # 他のカテゴリで同じ名前が使われていないかチェック
+    existing_category = db.query(Category).filter(
+        Category.category_name == category.category_name,
+        Category.category_id != category_id
+    ).first()
+    if existing_category:
+        raise HTTPException(status_code=400, detail="このカテゴリ名は既に存在します")
+
+    # カテゴリ情報を更新
+    db_category.category_name = category.category_name
+    db_category.description = category.description
+
+    db.commit()
+    db.refresh(db_category)
+    return db_category
 # 商品エンドポイント
 @app.get("/items", response_model=list[ItemResponse])
 async def get_items(db: Session = Depends(get_db), user_id: int = Depends(verify_token)):

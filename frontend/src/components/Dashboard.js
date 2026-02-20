@@ -37,11 +37,11 @@ const Dashboard = () => {
     const total = itemsData.length;
     const expiring = itemsData.filter(item => {
       const expiryDate = dayjs(item.expiry_date);
-      return expiryDate.isAfter(today) && expiryDate.isBefore(weekFromNow);
+      return expiryDate.isSame(today, 'day') || (expiryDate.isAfter(today) && expiryDate.isBefore(weekFromNow));
     }).length;
     const expired = itemsData.filter(item => {
       const expiryDate = dayjs(item.expiry_date);
-      return expiryDate.isBefore(today);
+      return expiryDate.isBefore(today, 'day');
     }).length;
 
     setStats({ total, expiring, expired });
@@ -53,7 +53,7 @@ const Dashboard = () => {
     
     return items.filter(item => {
       const expiryDate = dayjs(item.expiry_date);
-      return expiryDate.isAfter(today) && expiryDate.isBefore(weekFromNow);
+      return expiryDate.isSame(today, 'day') || (expiryDate.isAfter(today) && expiryDate.isBefore(weekFromNow));
     }).slice(0, 5);
   };
 
@@ -61,7 +61,7 @@ const Dashboard = () => {
     const today = dayjs();
     return items.filter(item => {
       const expiryDate = dayjs(item.expiry_date);
-      return expiryDate.isBefore(today);
+      return expiryDate.isBefore(today, 'day');
     }).slice(0, 5);
   };
 

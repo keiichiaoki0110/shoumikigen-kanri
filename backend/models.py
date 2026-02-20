@@ -15,8 +15,8 @@ class User(Base):
 class Category(Base):
     __tablename__ = "categories"
     
-    category_id = Column(Integer, primary_key=True, index=True)
-    category_name = Column(String)
+    category_id = Column(Integer, primary_key=True, index=True,)
+    category_name = Column(String, unique=True, index=True)
     description = Column(Text)
 
 class Item(Base):
