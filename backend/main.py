@@ -165,7 +165,7 @@ async def create_category(category: CategoryCreate, db: Session = Depends(get_db
      # カテゴリ名の重複チェック
     existing_category = db.query(Category).filter(Category.category_name == category.category_name).first()
     if existing_category:
-        raise HTTPException(status_code=400, detail="同一カテゴリー名の複数登録はできません")
+        raise HTTPException(status_code=400, detail="同一カテゴリ名の複数登録はできません")
 
     db_category = Category(**category.dict())
     db.add(db_category)
@@ -185,7 +185,7 @@ async def update_category(category_id: int, category: CategoryCreate, db: Sessio
         Category.category_id != category_id
     ).first()
     if existing_category:
-        raise HTTPException(status_code=400, detail="同一カテゴリー名の複数登録はできません")
+        raise HTTPException(status_code=400, detail="同一カテゴリ名の複数登録はできません")
 
     # カテゴリ情報を更新
     db_category.category_name = category.category_name
